@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>个人中心 - AI的礼物</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#DC2626',
+            secondary: '#EF4444',
+            accent: '#F87171',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 50%, #FDF2F8 100%);
+      min-height: 100vh;
+    }
+    .menu-item:hover {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(239, 68, 68, 0.05));
+    }
+    .menu-item:hover .menu-icon {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+    }
+    .menu-item:hover .menu-icon svg {
+      color: white;
+    }
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(220, 38, 38, 0.15);
+    }
+    .tab-active {
+      color: #DC2626;
+      border-bottom: 2px solid #DC2626;
+    }
+    .badge {
+      background: linear-gradient(135deg, #DC2626, #EF4444);
+    }
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <a href="https://v88soff15tt9.space.minimaxi.com" class="flex items-center gap-2">
+          <img src="logo.png" alt="AI的礼物" class="h-12 w-auto">
+        </a>
+        <div class="flex items-center gap-6">
+          <span class="text-gray-600">欢迎，<span class="text-primary font-semibold">创意达人</span></span>
+          <a href="login.html" class="text-gray-500 hover:text-primary transition-colors">退出登录</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Left Sidebar - User Info -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-lg p-6 text-center fade-in sticky top-24">
+          <!-- Avatar -->
+          <div class="relative inline-block mb-4">
+            <img
+              id="userAvatar"
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=creative"
+              alt="用户头像"
+              class="w-28 h-28 rounded-full border-4 border-red-100 object-cover"
+            >
+            <button
+              onclick="showEditProfile()"
+              class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg hover:bg-red-700 transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </button>
+          </div>
+
+          <h2 class="text-xl font-bold text-gray-800 mb-1">创意达人</h2>
+          <p class="text-gray-500 text-sm mb-4">creative@designer.cn</p>
+
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-2 mb-4">
+            <div class="p-2 bg-red-50 rounded-lg">
+              <p class="text-xl font-bold text-primary">28</p>
+              <p class="text-xs text-gray-500">作品</p>
+            </div>
+            <div class="p-2 bg-red-50 rounded-lg">
+              <p class="text-xl font-bold text-primary">156</p>
+              <p class="text-xs text-gray-500">粉丝</p>
+            </div>
+            <div class="p-2 bg-red-50 rounded-lg">
+              <p class="text-xl font-bold text-primary">892</p>
+              <p class="text-xs text-gray-500">获赞</p>
+            </div>
+          </div>
+
+          <!-- Member Badge -->
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-rose-500 rounded-full text-white text-sm">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+            设计师会员
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Content Area -->
+      <div class="lg:col-span-3">
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <button onclick="showSection('creations')" class="card-hover bg-white rounded-xl p-4 text-center shadow-md">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <p class="font-medium text-gray-800">我的创作</p>
+            <p class="text-xs text-gray-500">28个作品</p>
+          </button>
+
+          <button onclick="showSection('favorites')" class="card-hover bg-white rounded-xl p-4 text-center shadow-md">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+              </svg>
+            </div>
+            <p class="font-medium text-gray-800">我的收藏</p>
+            <p class="text-xs text-gray-500">45个收藏</p>
+          </button>
+
+          <button onclick="showSection('orders')" class="card-hover bg-white rounded-xl p-4 text-center shadow-md">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+              </svg>
+            </div>
+            <p class="font-medium text-gray-800">我的订单</p>
+            <p class="text-xs text-gray-500">12个订单</p>
+          </button>
+
+          <button onclick="showSection('settings')" class="card-hover bg-white rounded-xl p-4 text-center shadow-md">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-2">
+              <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <p class="font-medium text-gray-800">账户设置</p>
+            <p class="text-xs text-gray-500">个人信息</p>
+          </button>
+        </div>
+
+        <!-- Section Tabs -->
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+          <div class="flex border-b overflow-x-auto">
+            <button onclick="showSection('creations')" id="tabCreations" class="px-6 py-4 font-medium text-primary border-b-2 tab-active whitespace-nowrap">
+              我的创作
+            </button>
+            <button onclick="showSection('favorites')" id="tabFavorites" class="px-6 py-4 font-medium text-gray-500 hover:text-primary whitespace-nowrap">
+              我的收藏
+            </button>
+            <button onclick="showSection('orders')" id="tabOrders" class="px-6 py-4 font-medium text-gray-500 hover:text-primary whitespace-nowrap">
+              我的订单
+            </button>
+            <button onclick="showSection('addresses')" id="tabAddresses" class="px-6 py-4 font-medium text-gray-500 hover:text-primary whitespace-nowrap">
+              收货地址
+            </button>
+          </div>
+
+          <!-- My Creations Section -->
+          <div id="sectionCreations" class="p-6">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-800">我的创作作品</h3>
+              <a href="#" class="text-primary hover:underline text-sm">查看全部</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <!-- Creation Card 1 -->
+              <div class="card-hover bg-gray-50 rounded-xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop" alt="创作1" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-800 mb-2">敦煌飞天纹样</h4>
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">2024-03-15</span>
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        128
+                      </span>
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                        </svg>
+                        456
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Creation Card 2 -->
+              <div class="card-hover bg-gray-50 rounded-xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&h=300&fit=crop" alt="创作2" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-800 mb-2">青花瓷纹样</h4>
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">2024-03-10</span>
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        256
+                      </span>
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                        </svg>
+                        789
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Creation Card 3 -->
+              <div class="card-hover bg-gray-50 rounded-xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop" alt="创作3" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-800 mb-2">山水云纹</h4>
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500">2024-03-05</span>
+                    <div class="flex items-center gap-3">
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                        89
+                      </span>
+                      <span class="text-gray-400 flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                          <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                        </svg>
+                        234
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Favorites Section -->
+          <div id="sectionFavorites" class="p-6 hidden">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-800">我的收藏作品</h3>
+              <a href="#" class="text-primary hover:underline text-sm">查看全部</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              <!-- Favorite Card 1 -->
+              <div class="card-hover bg-gray-50 rounded-xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1582560475093-ba66accbc424?w=400&h=300&fit=crop" alt="收藏1" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-800 mb-2">传统刺绣纹样</h4>
+                  <p class="text-sm text-gray-500 mb-2">by 刺绣大师</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-400">2024-03-12</span>
+                    <button class="text-red-500 hover:text-red-700">
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Favorite Card 2 -->
+              <div class="card-hover bg-gray-50 rounded-xl overflow-hidden">
+                <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=400&h=300&fit=crop" alt="收藏2" class="w-full h-40 object-cover">
+                <div class="p-4">
+                  <h4 class="font-medium text-gray-800 mb-2">剪纸艺术</h4>
+                  <p class="text-sm text-gray-500 mb-2">by 剪纸艺术家</p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-400">2024-03-08</span>
+                    <button class="text-red-500 hover:text-red-700">
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Orders Section -->
+          <div id="sectionOrders" class="p-6 hidden">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-800">我的订单</h3>
+              <a href="#" class="text-primary hover:underline text-sm">查看全部</a>
+            </div>
+
+            <div class="space-y-4">
+              <!-- Order Item -->
+              <div class="border border-gray-200 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <p class="text-sm text-gray-500">订单号：20240315001</p>
+                    <p class="text-xs text-gray-400">2024-03-15 14:30</p>
+                  </div>
+                  <span class="badge px-3 py-1 rounded-full text-white text-sm">已完成</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=100&h=100&fit=crop" alt="商品" class="w-16 h-16 rounded-lg object-cover">
+                  <div class="flex-1">
+                    <h4 class="font-medium text-gray-800">敦煌飞天纹样衍生品</h4>
+                    <p class="text-sm text-gray-500">材质：高端丝绸 | 尺寸：50x50cm</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-primary">¥299.00</p>
+                    <button class="text-sm text-primary hover:underline mt-1">查看详情</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Order Item -->
+              <div class="border border-gray-200 rounded-xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <p class="text-sm text-gray-500">订单号：20240310002</p>
+                    <p class="text-xs text-gray-400">2024-03-10 09:15</p>
+                  </div>
+                  <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">处理中</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=100&h=100&fit=crop" alt="商品" class="w-16 h-16 rounded-lg object-cover">
+                  <div class="flex-1">
+                    <h4 class="font-medium text-gray-800">青花瓷纹样定制</h4>
+                    <p class="text-sm text-gray-500">材质：陶瓷 | 尺寸：标准款</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="font-bold text-primary">¥199.00</p>
+                    <button class="text-sm text-primary hover:underline mt-1">查看详情</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- My Addresses Section -->
+          <div id="sectionAddresses" class="p-6 hidden">
+            <div class="flex items-center justify-between mb-6">
+              <h3 class="text-lg font-bold text-gray-800">收货地址管理</h3>
+              <button onclick="showAddAddress()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                添加新地址
+              </button>
+            </div>
+
+            <div class="space-y-4">
+              <!-- Address Item -->
+              <div class="border border-gray-200 rounded-xl p-4 relative">
+                <div class="absolute top-4 right-4 flex gap-2">
+                  <button class="text-gray-400 hover:text-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button class="text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800 mb-1">
+                      <span class="mr-2">王明</span>
+                      <span class="text-gray-500">138****8888</span>
+                      <span class="ml-2 badge px-2 py-0.5 rounded text-white text-xs">默认</span>
+                    </p>
+                    <p class="text-sm text-gray-500">上海市 杨浦区 四平路1239号 同济大学设计创意学院</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Address Item 2 -->
+              <div class="border border-gray-200 rounded-xl p-4 relative">
+                <div class="absolute top-4 right-4 flex gap-2">
+                  <button class="text-gray-400 hover:text-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button class="text-gray-400 hover:text-red-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="flex items-start gap-4">
+                  <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="font-medium text-gray-800 mb-1">
+                      <span class="mr-2">王明</span>
+                      <span class="text-gray-500">139****9999</span>
+                    </p>
+                    <p class="text-sm text-gray-500">北京市 海淀区 中关村大街1号 科技大厦1208室</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Settings -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <h3 class="text-lg font-bold text-gray-800 mb-6">账户设置</h3>
+
+          <div class="space-y-4">
+            <!-- Modify Password -->
+            <button onclick="showChangePassword()" class="menu-item w-full flex items-center gap-4 p-4 rounded-xl transition-all">
+              <div class="menu-icon w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-medium text-gray-800">修改密码</p>
+                <p class="text-sm text-gray-500">定期更换密码保护账户安全</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            <!-- Bind Phone -->
+            <button onclick="showBindPhone()" class="menu-item w-full flex items-center gap-4 p-4 rounded-xl transition-all">
+              <div class="menu-icon w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-medium text-gray-800">绑定手机</p>
+                <p class="text-sm text-gray-500">已绑定：138****8888</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            <!-- Bind Email -->
+            <button onclick="showBindEmail()" class="menu-item w-full flex items-center gap-4 p-4 rounded-xl transition-all">
+              <div class="menu-icon w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-medium text-gray-800">绑定邮箱</p>
+                <p class="text-sm text-gray-500">已绑定：creative@designer.cn</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            <!-- Notification Settings -->
+            <button class="menu-item w-full flex items-center gap-4 p-4 rounded-xl transition-all">
+              <div class="menu-icon w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-medium text-gray-800">消息通知</p>
+                <p class="text-sm text-gray-500">管理您的通知偏好设置</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+
+            <!-- Logout -->
+            <button onclick="logout()" class="menu-item w-full flex items-center gap-4 p-4 rounded-xl transition-all">
+              <div class="menu-icon w-10 h-10 bg-red-100 rounded-full flex items-center justify-center transition-all">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+              </div>
+              <div class="flex-1 text-left">
+                <p class="font-medium text-red-500">退出登录</p>
+                <p class="text-sm text-gray-500">退出当前账户</p>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Modal -->
+  <div id="editProfileModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md slide-in">
+      <div class="p-6 border-b">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">编辑个人资料</h3>
+          <button onclick="closeEditProfile()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <div class="flex justify-center mb-6">
+          <div class="relative">
+            <img id="editAvatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=creative" alt="头像" class="w-24 h-24 rounded-full border-4 border-red-100">
+            <button class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white shadow-lg">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <form onsubmit="return saveProfile(event)">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">昵称</label>
+            <input type="text" value="创意达人" class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-primary transition-colors">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">个人简介</label>
+            <textarea rows="3" placeholder="介绍一下自己..." class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-primary transition-colors resize-none">热爱传统文化的年轻设计师，专注于将非遗纹样与现代设计结合</textarea>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">性别</label>
+            <div class="flex gap-4">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="gender" value="male" class="text-primary focus:ring-primary">
+                <span>男</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="gender" value="female" checked class="text-primary focus:ring-primary">
+                <span>女</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="gender" value="secret" class="text-primary focus:ring-primary">
+                <span>保密</span>
+              </label>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+            保存修改
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="changePasswordModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md slide-in">
+      <div class="p-6 border-b">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">修改密码</h3>
+          <button onclick="closeChangePassword()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <form onsubmit="return savePassword(event)">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">当前密码</label>
+            <input type="password" placeholder="请输入当前密码" class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-primary transition-colors">
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">新密码</label>
+            <input type="password" placeholder="请输入新密码（至少8位）" class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-primary transition-colors">
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">确认新密码</label>
+            <input type="password" placeholder="请再次输入新密码" class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none focus:border-primary transition-colors">
+          </div>
+
+          <button type="submit" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors">
+            确认修改
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Show section
+    function showSection(section) {
+      // Hide all sections
+      document.getElementById('sectionCreations').classList.add('hidden');
+      document.getElementById('sectionFavorites').classList.add('hidden');
+      document.getElementById('sectionOrders').classList.add('hidden');
+      document.getElementById('sectionAddresses').classList.add('hidden');
+
+      // Reset all tabs
+      const tabs = ['tabCreations', 'tabFavorites', 'tabOrders', 'tabAddresses'];
+      tabs.forEach(tab => {
+        document.getElementById(tab).classList.remove('tab-active');
+        document.getElementById(tab).classList.add('text-gray-500');
+      });
+
+      // Show selected section
+      const sectionMap = {
+        'creations': 'sectionCreations',
+        'favorites': 'sectionFavorites',
+        'orders': 'sectionOrders',
+        'addresses': 'sectionAddresses'
+      };
+
+      const tabMap = {
+        'creations': 'tabCreations',
+        'favorites': 'tabFavorites',
+        'orders': 'tabOrders',
+        'addresses': 'tabAddresses'
+      };
+
+      if (sectionMap[section]) {
+        document.getElementById(sectionMap[section]).classList.remove('hidden');
+      }
+
+      if (tabMap[section]) {
+        const tab = document.getElementById(tabMap[section]);
+        tab.classList.add('tab-active');
+        tab.classList.remove('text-gray-500');
+      }
+    }
+
+    // Edit Profile Modal
+    function showEditProfile() {
+      document.getElementById('editProfileModal').classList.remove('hidden');
+    }
+
+    function closeEditProfile() {
+      document.getElementById('editProfileModal').classList.add('hidden');
+    }
+
+    function saveProfile(event) {
+      event.preventDefault();
+      alert('个人信息已保存');
+      closeEditProfile();
+      return false;
+    }
+
+    // Change Password Modal
+    function showChangePassword() {
+      document.getElementById('changePasswordModal').classList.remove('hidden');
+    }
+
+    function closeChangePassword() {
+      document.getElementById('changePasswordModal').classList.add('hidden');
+    }
+
+    function savePassword(event) {
+      event.preventDefault();
+      alert('密码修改成功');
+      closeChangePassword();
+      return false;
+    }
+
+    // Bind Phone
+    function showBindPhone() {
+      alert('绑定手机功能开发中...');
+    }
+
+    // Bind Email
+    function showBindEmail() {
+      alert('绑定邮箱功能开发中...');
+    }
+
+    // Add Address
+    function showAddAddress() {
+      alert('添加地址功能开发中...');
+    }
+
+    // Logout
+    function logout() {
+      if (confirm('确定要退出登录吗？')) {
+        window.location.href = 'login.html';
+      }
+    }
+
+    // Close modals on outside click
+    document.getElementById('editProfileModal').addEventListener('click', function(e) {
+      if (e.target === this) closeEditProfile();
+    });
+
+    document.getElementById('changePasswordModal').addEventListener('click', function(e) {
+      if (e.target === this) closeChangePassword();
+    });
+  </script>
+
+<style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.inland-security-footer {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.trigger-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.minimax-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 300;
+  color: #adadad;
+  text-decoration: none;
+}
+
+.minimax-link:visited {
+  color: #adadad;
+}
+
+.minimax-link:hover {
+  color: #666666;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+  font-size: 12px;
+  line-height: 17px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #171717;
+}
+
+/* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: flex;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.beian-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #171717;
+}
+
+.beian-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+}
+
+.underline-text {
+  color: #171717;
+  text-decoration: underline;
+}
+
+.underline-text:hover {
+  color: #000000;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .trigger-content {
+    background-color: transparent;
+  }
+
+  .minimax-link,
+  .minimax-link:visited {
+    color: #666666;
+  }
+
+  .minimax-link:hover {
+    color: #adadad;
+  }
+
+  .tooltip-content {
+    background-color: #262626;
+    color: #ededed;
+  }
+
+  .beian-link,
+  .underline-text {
+    color: #ededed;
+  }
+
+  .underline-text:hover {
+    color: #ffffff;
+  }
+}
+
+</style>
+<div class="inland-security-footer">
+  <div class="tooltip-container">
+    <div class="trigger-content">
+      <a href="https://www.minimaxi.com/" target="_blank" rel="noreferrer" class="minimax-link">
+        <span>© 2026 MiniMax</span>
+      </a>
+    </div>
+    <div class="tooltip-content">
+      <section class="info-section">
+        <span>上海稀宇科技有限公司</span>
+      </section>
+
+      <section class="info-section">
+        <a class="beian-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179" target="_blank" rel="noreferrer">
+          <img alt="hailuo-beian-icon" src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png" class="beian-icon">
+          <span class="underline-text">沪公网安备31010402010179号</span>
+        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" class="underline-text">
+          沪ICP备2023003282号-38
+        </a>
+      </section>
+
+      <section class="info-section">
+        <span>模型名称：MiniMax</span>
+        <span>备案号：Shanghai-MiniMax-202505230046</span>
+      </section>
+
+      <section class="info-section">
+        <a href="https://agent.minimaxi.com/doc/zh/terms-of-service.html" target="_blank" rel="noreferrer" class="underline-text">
+          用户协议
+        </a>
+        <a href="https://agent.minimaxi.com/doc/zh/privacy-policy.html" target="_blank" rel="noreferrer" class="underline-text">
+          隐私政策
+        </a>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

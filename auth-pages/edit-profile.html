@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>编辑个人信息 - AI的礼物</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#DC2626',
+            secondary: '#EF4444',
+            accent: '#F87171',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 50%, #FDF2F8 100%);
+      min-height: 100vh;
+    }
+    .input-focus:focus {
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    .avatar-upload {
+      position: relative;
+      display: inline-block;
+    }
+    .avatar-upload:hover .avatar-overlay {
+      opacity: 1;
+    }
+    .avatar-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      cursor: pointer;
+    }
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      font-weight: 500;
+      color: #6B7280;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+    .tab-btn:hover {
+      color: #DC2626;
+    }
+    .tab-btn.active {
+      color: #DC2626;
+      border-bottom-color: #DC2626;
+    }
+    .save-btn {
+      background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+      transition: all 0.3s ease;
+    }
+    .save-btn:hover {
+      background: linear-gradient(135deg, #B91C1C 0%, #DC2626 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+    }
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .success-toast {
+      animation: slideInFade 0.3s ease-out;
+    }
+    @keyframes slideInFade {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="max-w-4xl mx-auto px-4">
+      <div class="flex items-center justify-between h-16">
+        <a href="profile.html" class="flex items-center gap-2 text-gray-600 hover:text-primary transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+          </svg>
+          返回
+        </a>
+        <h1 class="text-lg font-semibold text-gray-800">编辑资料</h1>
+        <div class="w-16"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Avatar Section -->
+    <div class="bg-white rounded-2xl shadow-lg p-8 mb-6 fade-in">
+      <div class="flex flex-col items-center">
+        <div class="avatar-upload mb-4">
+          <img
+            id="currentAvatar"
+            src="https://api.dicebear.com/7.x/avataaars/svg?seed=creative"
+            alt="头像"
+            class="w-32 h-32 rounded-full border-4 border-red-100 object-cover"
+          >
+          <div class="avatar-overlay" onclick="document.getElementById('avatarInput').click()">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </div>
+          <input type="file" id="avatarInput" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+        </div>
+        <p class="text-sm text-gray-500 mb-1">点击更换头像</p>
+        <p class="text-xs text-gray-400">支持 JPG、PNG 格式，建议尺寸 200x200</p>
+      </div>
+    </div>
+
+    <!-- Form Tabs -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 fade-in">
+      <div class="flex border-b">
+        <button onclick="switchTab('basic')" id="tabBasic" class="tab-btn active">
+          基本信息
+        </button>
+        <button onclick="switchTab('contact')" id="tabContact" class="tab-btn">
+          联系信息
+        </button>
+        <button onclick="switchTab('security')" id="tabSecurity" class="tab-btn">
+          账号安全
+        </button>
+      </div>
+
+      <!-- Basic Info Tab -->
+      <div id="contentBasic" class="p-6">
+        <form id="basicForm" onsubmit="return saveBasicInfo(event)">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Nickname -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                昵称 <span class="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                id="nickname"
+                value="创意达人"
+                placeholder="请输入昵称"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+                required
+                maxlength="20"
+              >
+              <p class="text-xs text-gray-400 mt-1">限20个字符</p>
+            </div>
+
+            <!-- Gender -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">性别</label>
+              <div class="flex items-center gap-6 h-12">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="gender" value="male" class="w-4 h-4 text-primary focus:ring-primary">
+                  <span class="text-gray-700">男</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="gender" value="female" checked class="w-4 h-4 text-primary focus:ring-primary">
+                  <span class="text-gray-700">女</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="gender" value="secret" class="w-4 h-4 text-primary focus:ring-primary">
+                  <span class="text-gray-700">保密</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Birthday -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">生日</label>
+              <input
+                type="date"
+                id="birthday"
+                value="1995-06-15"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+              >
+            </div>
+
+            <!-- Location -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">所在地</label>
+              <div class="grid grid-cols-2 gap-3">
+                <select class="px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all">
+                  <option value="shanghai" selected>上海市</option>
+                  <option value="beijing">北京市</option>
+                  <option value="guangzhou">广州市</option>
+                  <option value="shenzhen">深圳市</option>
+                  <option value="hangzhou">杭州市</option>
+                </select>
+                <select class="px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all">
+                  <option value="yangpu" selected>杨浦区</option>
+                  <option value="huangpu">黄浦区</option>
+                  <option value="xuhui">徐汇区</option>
+                  <option value="changning">长宁区</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Bio -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2">个人简介</label>
+              <textarea
+                id="bio"
+                rows="4"
+                placeholder="介绍一下你自己..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all resize-none"
+                maxlength="200"
+              >热爱传统文化的年轻设计师，专注于将非遗纹样与现代设计结合，让更多人了解和喜爱中国传统美学。</textarea>
+              <p class="text-xs text-gray-400 mt-1 text-right"><span id="bioCount">62</span>/200</p>
+            </div>
+
+            <!-- Profession -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">职业</label>
+              <select class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all">
+                <option value="">请选择职业</option>
+                <option value="designer" selected>设计师</option>
+                <option value="artist">艺术家</option>
+                <option value="teacher">教师</option>
+                <option value="student">学生</option>
+                <option value="other">其他</option>
+              </select>
+            </div>
+
+            <!-- Interest Tags -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">兴趣标签</label>
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 bg-red-50 text-primary text-sm rounded-full flex items-center gap-1">
+                  非遗传承
+                  <button type="button" class="hover:text-red-700">×</button>
+                </span>
+                <span class="px-3 py-1 bg-red-50 text-primary text-sm rounded-full flex items-center gap-1">
+                  传统纹样
+                  <button type="button" class="hover:text-red-700">×</button>
+                </span>
+                <span class="px-3 py-1 bg-red-50 text-primary text-sm rounded-full flex items-center gap-1">
+                  AI创作
+                  <button type="button" class="hover:text-red-700">×</button>
+                </span>
+                <button type="button" class="px-3 py-1 border border-dashed border-gray-300 text-gray-500 text-sm rounded-full hover:border-primary hover:text-primary transition-colors">
+                  + 添加
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Contact Info Tab -->
+      <div id="contentContact" class="p-6 hidden">
+        <form id="contactForm" onsubmit="return saveContactInfo(event)">
+          <div class="space-y-6">
+            <!-- Email -->
+            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">邮箱</label>
+                  <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">已验证</span>
+                </div>
+                <p class="text-gray-800 mb-3">creative@designer.cn</p>
+                <button type="button" class="text-sm text-primary hover:underline">修改邮箱</button>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">手机号</label>
+                  <span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded">已绑定</span>
+                </div>
+                <p class="text-gray-800 mb-3">138****8888</p>
+                <button type="button" onclick="showChangePhoneModal()" class="text-sm text-primary hover:underline">更换手机号</button>
+              </div>
+            </div>
+
+            <!-- WeChat -->
+            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+              <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">微信</label>
+                  <span class="text-xs px-2 py-0.5 bg-gray-200 text-gray-600 rounded">未绑定</span>
+                </div>
+                <p class="text-gray-400 mb-3">暂未绑定微信账号</p>
+                <button type="button" class="text-sm text-primary hover:underline">立即绑定</button>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-medium text-gray-700">收货地址</label>
+                  <button type="button" class="text-sm text-primary hover:underline">管理</button>
+                </div>
+                <p class="text-gray-800">上海市 杨浦区 四平路1239号</p>
+                <p class="text-sm text-gray-500">王明 138****8888</p>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Security Tab -->
+      <div id="contentSecurity" class="p-6 hidden">
+        <div class="space-y-4">
+          <!-- Change Password -->
+          <button onclick="showChangePassword()" class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                </svg>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">登录密码</p>
+                <p class="text-sm text-gray-500">定期更换密码，保护账户安全</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Two-Factor Auth -->
+          <button class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">两步验证</p>
+                <p class="text-sm text-gray-500">未开启</p>
+              </div>
+            </div>
+            <span class="text-sm text-gray-400">未开启</span>
+          </button>
+
+          <!-- Login Devices -->
+          <button class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">登录设备管理</p>
+                <p class="text-sm text-gray-500">查看并管理登录设备</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-gray-400">2台设备</span>
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </div>
+          </button>
+
+          <!-- Account Binding -->
+          <button class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-gray-800">第三方账号绑定</p>
+                <p class="text-sm text-gray-500">绑定后可快速登录</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+
+          <!-- Account Cancellation -->
+          <button class="w-full flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-red-50 transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </div>
+              <div class="text-left">
+                <p class="font-medium text-red-500">注销账户</p>
+                <p class="text-sm text-gray-500">注销后所有数据将被删除</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 fade-in">
+      <button onclick="saveAll()" class="save-btn w-full text-white py-3 rounded-lg font-semibold">
+        保存修改
+      </button>
+      <p class="text-center text-sm text-gray-500 mt-4">
+        <a href="profile.html" class="text-primary hover:underline">取消并返回</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Success Toast -->
+  <div id="successToast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg success-toast hidden z-50">
+    <div class="flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="toastMessage">保存成功</span>
+    </div>
+  </div>
+
+  <!-- Change Password Modal -->
+  <div id="passwordModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md">
+      <div class="p-6 border-b">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">修改密码</h3>
+          <button onclick="closePasswordModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <form onsubmit="return submitPasswordChange(event)">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">当前密码</label>
+            <input
+              type="password"
+              id="currentPassword"
+              placeholder="请输入当前密码"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+              required
+            >
+          </div>
+
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">新密码</label>
+            <input
+              type="password"
+              id="newPassword"
+              placeholder="请输入新密码（至少8位）"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+              required
+              minlength="8"
+            >
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">确认新密码</label>
+            <input
+              type="password"
+              id="confirmNewPassword"
+              placeholder="请再次输入新密码"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+              required
+            >
+          </div>
+
+          <div class="flex gap-4">
+            <button type="button" onclick="closePasswordModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+              取消
+            </button>
+            <button type="submit" class="flex-1 save-btn text-white py-3 rounded-lg font-semibold">
+              确认修改
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Change Phone Modal -->
+  <div id="phoneModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl w-full max-w-md">
+      <div class="p-6 border-b">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">更换手机号</h3>
+          <button onclick="closePhoneModal()" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="p-6">
+        <form onsubmit="return submitPhoneChange(event)">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">新手机号</label>
+            <div class="flex">
+              <div class="flex items-center px-4 bg-gray-100 rounded-l-lg border border-r-0 border-gray-300">
+                <span class="text-gray-600">+86</span>
+              </div>
+              <input
+                type="tel"
+                id="newPhone"
+                placeholder="请输入新手机号"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg outline-none input-focus transition-all"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">验证码</label>
+            <div class="flex gap-3">
+              <input
+                type="text"
+                id="phoneCode"
+                placeholder="请输入验证码"
+                class="flex-1 px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+                maxlength="6"
+                required
+              >
+              <button
+                type="button"
+                id="sendCodeBtn"
+                onclick="sendCode()"
+                class="px-4 py-3 bg-gray-100 text-primary font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+              >
+                获取验证码
+              </button>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <button type="button" onclick="closePhoneModal()" class="flex-1 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+              取消
+            </button>
+            <button type="submit" class="flex-1 save-btn text-white py-3 rounded-lg font-semibold">
+              确认更换
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    function switchTab(tab) {
+      // Hide all content
+      document.getElementById('contentBasic').classList.add('hidden');
+      document.getElementById('contentContact').classList.add('hidden');
+      document.getElementById('contentSecurity').classList.add('hidden');
+
+      // Reset all tabs
+      document.getElementById('tabBasic').classList.remove('active');
+      document.getElementById('tabContact').classList.remove('active');
+      document.getElementById('tabSecurity').classList.remove('active');
+
+      // Show selected content
+      document.getElementById('content' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.remove('hidden');
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+    }
+
+    // Avatar change
+    function handleAvatarChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById('currentAvatar').src = e.target.result;
+          showToast('头像已更新');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Bio character count
+    document.getElementById('bio').addEventListener('input', function() {
+      document.getElementById('bioCount').textContent = this.value.length;
+    });
+
+    // Show toast
+    function showToast(message) {
+      const toast = document.getElementById('successToast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2000);
+    }
+
+    // Save basic info
+    function saveBasicInfo(event) {
+      event.preventDefault();
+      showToast('基本信息已保存');
+      return false;
+    }
+
+    // Save contact info
+    function saveContactInfo(event) {
+      event.preventDefault();
+      showToast('联系信息已保存');
+      return false;
+    }
+
+    // Save all
+    function saveAll() {
+      showToast('所有修改已保存');
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 1500);
+    }
+
+    // Change password modal
+    function showChangePassword() {
+      document.getElementById('passwordModal').classList.remove('hidden');
+    }
+
+    function closePasswordModal() {
+      document.getElementById('passwordModal').classList.add('hidden');
+    }
+
+    function submitPasswordChange(event) {
+      event.preventDefault();
+      const newPass = document.getElementById('newPassword').value;
+      const confirmPass = document.getElementById('confirmNewPassword').value;
+
+      if (newPass !== confirmPass) {
+        alert('两次密码输入不一致');
+        return false;
+      }
+
+      closePasswordModal();
+      showToast('密码修改成功');
+      return false;
+    }
+
+    // Change phone modal
+    function showChangePhoneModal() {
+      document.getElementById('phoneModal').classList.remove('hidden');
+    }
+
+    function closePhoneModal() {
+      document.getElementById('phoneModal').classList.add('hidden');
+    }
+
+    function submitPhoneChange(event) {
+      event.preventDefault();
+      closePhoneModal();
+      showToast('手机号更换成功');
+      return false;
+    }
+
+    // Send verification code
+    let countdown = 60;
+    let timer = null;
+
+    function sendCode() {
+      const phone = document.getElementById('newPhone').value;
+      const sendBtn = document.getElementById('sendCodeBtn');
+
+      if (!/^1[3-9]\d{9}$/.test(phone)) {
+        alert('请输入有效的手机号');
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.classList.add('opacity-50');
+
+      timer = setInterval(() => {
+        countdown--;
+        sendBtn.textContent = `${countdown}秒后重试`;
+
+        if (countdown <= 0) {
+          clearInterval(timer);
+          countdown = 60;
+          sendBtn.disabled = false;
+          sendBtn.classList.remove('opacity-50');
+          sendBtn.textContent = '获取验证码';
+        }
+      }, 1000);
+
+      alert('验证码已发送');
+    }
+
+    // Close modals on outside click
+    document.getElementById('passwordModal').addEventListener('click', function(e) {
+      if (e.target === this) closePasswordModal();
+    });
+
+    document.getElementById('phoneModal').addEventListener('click', function(e) {
+      if (e.target === this) closePhoneModal();
+    });
+  </script>
+
+<style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.inland-security-footer {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.trigger-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.minimax-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 300;
+  color: #adadad;
+  text-decoration: none;
+}
+
+.minimax-link:visited {
+  color: #adadad;
+}
+
+.minimax-link:hover {
+  color: #666666;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+  font-size: 12px;
+  line-height: 17px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #171717;
+}
+
+/* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: flex;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.beian-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #171717;
+}
+
+.beian-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+}
+
+.underline-text {
+  color: #171717;
+  text-decoration: underline;
+}
+
+.underline-text:hover {
+  color: #000000;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .trigger-content {
+    background-color: transparent;
+  }
+
+  .minimax-link,
+  .minimax-link:visited {
+    color: #666666;
+  }
+
+  .minimax-link:hover {
+    color: #adadad;
+  }
+
+  .tooltip-content {
+    background-color: #262626;
+    color: #ededed;
+  }
+
+  .beian-link,
+  .underline-text {
+    color: #ededed;
+  }
+
+  .underline-text:hover {
+    color: #ffffff;
+  }
+}
+
+</style>
+<div class="inland-security-footer">
+  <div class="tooltip-container">
+    <div class="trigger-content">
+      <a href="https://www.minimaxi.com/" target="_blank" rel="noreferrer" class="minimax-link">
+        <span>© 2026 MiniMax</span>
+      </a>
+    </div>
+    <div class="tooltip-content">
+      <section class="info-section">
+        <span>上海稀宇科技有限公司</span>
+      </section>
+
+      <section class="info-section">
+        <a class="beian-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179" target="_blank" rel="noreferrer">
+          <img alt="hailuo-beian-icon" src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png" class="beian-icon">
+          <span class="underline-text">沪公网安备31010402010179号</span>
+        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" class="underline-text">
+          沪ICP备2023003282号-38
+        </a>
+      </section>
+
+      <section class="info-section">
+        <span>模型名称：MiniMax</span>
+        <span>备案号：Shanghai-MiniMax-202505230046</span>
+      </section>
+
+      <section class="info-section">
+        <a href="https://agent.minimaxi.com/doc/zh/terms-of-service.html" target="_blank" rel="noreferrer" class="underline-text">
+          用户协议
+        </a>
+        <a href="https://agent.minimaxi.com/doc/zh/privacy-policy.html" target="_blank" rel="noreferrer" class="underline-text">
+          隐私政策
+        </a>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

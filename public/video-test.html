@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Video Test</title>
+  <style>
+    body { background: #1a1a1a; color: white; padding: 20px; font-family: sans-serif; }
+    video { width: 400px; border: 2px solid red; }
+    .status { margin: 10px 0; padding: 10px; background: #333; }
+  </style>
+</head>
+<body>
+  <h1>Video Test Page</h1>
+
+  <div class="status" id="status">Loading...</div>
+
+  <video id="video1" controls>
+    <source src="/videos/user_video_converted.mp4" type="video/mp4">
+  </video>
+
+  <br><br>
+
+  <video id="video2" controls>
+    <source src="/videos/video_march24_converted.mp4" type="video/mp4">
+  </video>
+
+  <script>
+    const video1 = document.getElementById('video1');
+    const video2 = document.getElementById('video2');
+    const status = document.getElementById('status');
+
+    status.innerHTML = 'Videos found. Click play to test.';
+
+    video1.oncanplay = () => status.innerHTML += '<br>Video 1 ready';
+    video2.oncanplay = () => status.innerHTML += '<br>Video 2 ready';
+    video1.onerror = (e) => status.innerHTML += '<br>Video 1 error: ' + e;
+    video2.onerror = (e) => status.innerHTML += '<br>Video 2 error: ' + e;
+  </script>
+</body>
+</html>

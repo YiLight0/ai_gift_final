@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - AI的礼物</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#DC2626',
+            secondary: '#EF4444',
+            accent: '#F87171',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFF1F2 50%, #FDF2F8 100%);
+      min-height: 100vh;
+    }
+    .glass {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .input-focus:focus {
+      border-color: #DC2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #B91C1C 0%, #DC2626 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(220, 38, 38, 0.3);
+    }
+    .social-btn {
+      transition: all 0.2s ease;
+    }
+    .social-btn:hover {
+      transform: translateY(-2px);
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .tab-active {
+      color: #DC2626;
+      border-bottom: 2px solid #DC2626;
+    }
+  </style>
+</head>
+<body class="font-sans">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="fade-in w-full max-w-md">
+      <!-- Logo -->
+      <div class="text-center mb-8">
+        <img src="logo.png" alt="AI的礼物" class="h-16 mx-auto mb-4">
+        <h1 class="text-2xl font-bold text-gray-800">欢迎回来</h1>
+        <p class="text-gray-500 mt-2">登录您的账户继续探索</p>
+      </div>
+
+      <!-- Login Card -->
+      <div class="glass rounded-2xl shadow-xl p-8">
+        <!-- Login Type Tabs -->
+        <div class="flex border-b border-gray-200 mb-6">
+          <button id="tabPhone" class="flex-1 py-3 text-center font-medium text-primary tab-active" onclick="switchTab('phone')">
+            手机登录
+          </button>
+          <button id="tabEmail" class="flex-1 py-3 text-center font-medium text-gray-500" onclick="switchTab('email')">
+            邮箱登录
+          </button>
+        </div>
+
+        <!-- Phone Login Form -->
+        <div id="phoneForm">
+          <form id="phoneLoginForm" onsubmit="return handlePhoneLogin(event)">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">手机号</label>
+              <div class="flex">
+                <div class="flex items-center px-4 bg-gray-100 rounded-l-lg border border-r-0 border-gray-300">
+                  <span class="text-gray-600">+86</span>
+                </div>
+                <input
+                  type="tel"
+                  id="phone"
+                  placeholder="请输入手机号"
+                  class="flex-1 px-4 py-3 border border-gray-300 rounded-r-lg outline-none input-focus transition-all"
+                  required
+                >
+              </div>
+              <p id="phoneError" class="text-red-500 text-sm mt-1 hidden">请输入有效的手机号</p>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">验证码</label>
+              <div class="flex gap-3">
+                <input
+                  type="text"
+                  id="phoneCode"
+                  placeholder="请输入验证码"
+                  class="flex-1 px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+                  maxlength="6"
+                  required
+                >
+                <button
+                  type="button"
+                  id="sendCodeBtn"
+                  onclick="sendCode()"
+                  class="px-4 py-3 bg-gray-100 text-primary font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+                >
+                  获取验证码
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-6 flex items-center justify-between">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                <span class="ml-2 text-sm text-gray-600">记住我</span>
+              </label>
+              <a href="#" class="text-sm text-primary hover:underline">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+              登录
+            </button>
+          </form>
+        </div>
+
+        <!-- Email Login Form -->
+        <div id="emailForm" class="hidden">
+          <form id="emailLoginForm" onsubmit="return handleEmailLogin(event)">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">邮箱</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="请输入邮箱"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all"
+                required
+              >
+              <p id="emailError" class="text-red-500 text-sm mt-1 hidden">请输入有效的邮箱地址</p>
+            </div>
+
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2">密码</label>
+              <div class="relative">
+                <input
+                  type="password"
+                  id="password"
+                  placeholder="请输入密码"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg outline-none input-focus transition-all pr-12"
+                  required
+                >
+                <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="mb-6 flex items-center justify-between">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                <span class="ml-2 text-sm text-gray-600">记住我</span>
+              </label>
+              <a href="#" class="text-sm text-primary hover:underline">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="w-full btn-primary text-white py-3 rounded-lg font-semibold">
+              登录
+            </button>
+          </form>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center my-6">
+          <div class="flex-1 border-t border-gray-200"></div>
+          <span class="px-4 text-sm text-gray-400">其他登录方式</span>
+          <div class="flex-1 border-t border-gray-200"></div>
+        </div>
+
+        <!-- Social Login -->
+        <div class="grid grid-cols-3 gap-4">
+          <!-- WeChat -->
+          <button class="social-btn flex flex-col items-center py-3 rounded-lg bg-green-50 hover:bg-green-100">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#07C160">
+              <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 01.213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 00.167-.054l1.903-1.114a.864.864 0 01.717-.098 10.16 10.16 0 002.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178A1.17 1.17 0 014.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 01-1.162 1.178 1.17 1.17 0 01-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 01.598.082l1.584.926a.272.272 0 00.14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.173l-.327-1.233a.582.582 0 01-.023-.156.49.49 0 01.201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.269-.03-.407-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 01-.969.983.976.976 0 01-.969-.983c0-.542.434-.982.969-.982z"/>
+            </svg>
+            <span class="text-xs text-green-700 mt-1">微信</span>
+          </button>
+
+          <!-- QQ -->
+          <button class="social-btn flex flex-col items-center py-3 rounded-lg bg-blue-50 hover:bg-blue-100">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#12B7F5">
+              <path d="M12.003 2c-2.265 0-6.29 1.364-6.29 7.325v1.195S3.55 14.96 3.55 17.474c0 .665.17 1.025.396 1.025.127 0 .319-.058.49-.158.658-.385 1.357-1.004 1.357-1.004-.317-1.359.171-2.173.171-2.173 1.07-.769 1.973-1.86 1.973-1.86 1.192-1.794 2.677-2.013 2.677-2.013h2.031l.074-.025c.68-.22 1.392-.354 2.281-.354 2.265 0 6.29 1.364 6.29 7.325v1.195s-2.164 4.345-2.164 6.859c0 .665.17 1.025.396 1.025.127 0 .319-.058.49-.158.658-.385 1.357-1.004 1.357-1.004-.317-1.359.171-2.173.171-2.173 1.07-.769 1.973-1.86 1.973-1.86 1.192-1.794 2.677-2.013 2.677-2.013h2.031l.074-.025c.68-.22 1.392-.354 2.281-.354 2.265 0 6.29 1.364 6.29 7.325v1.195s-2.164 4.345-2.164 6.859c0 .665.17 1.025.396 1.025.127 0 .319-.058.49-.158.658-.385 1.357-1.004 1.357-1.004-.317-1.359.171-2.173.171-2.173 1.07-.769 1.973-1.86 1.973-1.86.938-1.4 1.586-2.522 1.586-4.02 0-3.574-2.614-6.474-5.841-6.474-1.803 0-3.493.49-4.961 1.325-.28.16-.028-.426-.114-.475-2.014-1.163-4.199-1.163-6.213 0-.086.049.166.635-.114.475-1.468-.835-3.158-1.325-4.961-1.325-3.227 0-5.841 2.9-5.841 6.474 0 1.498.648 2.62 1.586 4.02 1.192 1.794 2.677 2.013 2.677 2.013h2.031l.074-.025c.68-.22 1.392-.354 2.281-.354"/>
+            </svg>
+            <span class="text-xs text-blue-700 mt-1">QQ</span>
+          </button>
+
+          <!-- Weibo -->
+          <button class="social-btn flex flex-col items-center py-3 rounded-lg bg-red-50 hover:bg-red-100">
+            <svg class="w-8 h-8" viewBox="0 0 24 24" fill="#E6162D">
+              <path d="M10.098 20.323c-3.977.391-7.414-1.406-7.672-4.02-.259-2.609 2.759-5.047 6.74-5.441 3.979-.394 7.413 1.404 7.671 4.018.259 2.6-2.759 5.049-6.739 5.443zM9.05 17.219c-.384.616-1.208.884-1.829.602-.612-.279-.793-.991-.406-1.593.379-.595 1.176-.861 1.793-.601.622.263.82.972.442 1.592zm1.27-1.627c-.141.237-.449.353-.689.253-.236-.09-.313-.361-.177-.586.138-.227.436-.346.672-.24.239.09.315.36.194.573zm.176-2.719c-1.893-.493-4.033.45-4.857 2.118-.836 1.704-.026 3.591 1.886 4.21 1.983.64 4.318-.341 5.132-2.179.8-1.793-.201-3.642-2.161-4.149zm7.563-1.224c-.346-.105-.579-.18-.405-.649.381-1.017.422-1.893-.046-2.627-.701-1.098-2.17-1.474-3.61-.923-.558.212-.864.168-1.054-.348-.272-.736-.881-.91-1.441-1.001-.807-.131-1.68.158-2.315.79-.622.612-.984 1.451-.994 2.294-.015 1.144.611 2.178 1.559 2.725 1.057.609 2.368.737 3.551.334.98-.333 1.746-1.002 2.189-1.948.127-.271.27-.575.49-.764.216-.188.56-.232.935-.132.346.09.56.234.648.524.075.265.027.571-.123.864-.182.35-.507.649-.89.841zM19.78 8.02c-1.403-.703-3.023-.74-4.485-.091-1.507.67-2.583 2.02-2.836 3.572-.114.696.026 1.169.378 1.303.382.14.905-.065 1.345-.527 1.043-1.094 2.716-1.258 3.893-.382 1.145.853 1.538 2.429.924 3.708-.591 1.227-2.11 2.021-3.64 1.87-1.604-.156-3.071-.947-3.85-2.354-.144-.262-.26-.538-.364-.816-.167-.441-.566-.596-.991-.388-.378.185-.545.639-.396 1.089.398 1.216.976 2.351 1.854 3.199 1.397 1.349 3.359 1.915 5.263 1.503 1.92-.414 3.497-1.615 4.236-3.404.762-1.845.401-4.025-1.001-5.534z"/>
+            </svg>
+            <span class="text-xs text-red-700 mt-1">微博</span>
+          </button>
+        </div>
+
+        <!-- Register Link -->
+        <p class="text-center mt-6 text-gray-600">
+          还没有账号？
+          <a href="https://v88soff15tt9.space.minimaxi.com/auth-pages/register.html" class="text-primary font-semibold hover:underline">立即注册</a>
+        </p>
+      </div>
+
+      <!-- Back to Home -->
+      <div class="text-center mt-6">
+        <a href="https://v88soff15tt9.space.minimaxi.com" class="text-gray-500 hover:text-primary transition-colors inline-flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          返回首页
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 hidden z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center fade-in">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <h3 class="text-xl font-bold text-gray-800 mb-2">登录成功</h3>
+      <p class="text-gray-500 mb-6">正在跳转至首页...</p>
+    </div>
+  </div>
+
+  <script>
+    // Tab Switching
+    function switchTab(tab) {
+      const phoneTab = document.getElementById('tabPhone');
+      const emailTab = document.getElementById('tabEmail');
+      const phoneForm = document.getElementById('phoneForm');
+      const emailForm = document.getElementById('emailForm');
+
+      if (tab === 'phone') {
+        phoneTab.classList.add('tab-active');
+        phoneTab.classList.remove('text-gray-500');
+        emailTab.classList.remove('tab-active');
+        emailTab.classList.add('text-gray-500');
+        phoneForm.classList.remove('hidden');
+        emailForm.classList.add('hidden');
+      } else {
+        emailTab.classList.add('tab-active');
+        emailTab.classList.remove('text-gray-500');
+        phoneTab.classList.remove('tab-active');
+        phoneTab.classList.add('text-gray-500');
+        emailForm.classList.remove('hidden');
+        phoneForm.classList.add('hidden');
+      }
+    }
+
+    // Phone Validation
+    function validatePhone(phone) {
+      return /^1[3-9]\d{9}$/.test(phone);
+    }
+
+    // Email Validation
+    function validateEmail(email) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Toggle Password Visibility
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eyeIcon');
+
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+      }
+    }
+
+    // Send Verification Code
+    let countdown = 60;
+    let timer = null;
+
+    function sendCode() {
+      const phone = document.getElementById('phone').value;
+      const sendBtn = document.getElementById('sendCodeBtn');
+      const phoneError = document.getElementById('phoneError');
+
+      if (!validatePhone(phone)) {
+        phoneError.classList.remove('hidden');
+        return;
+      }
+
+      phoneError.classList.add('hidden');
+      sendBtn.disabled = true;
+      sendBtn.classList.add('opacity-50');
+
+      timer = setInterval(() => {
+        countdown--;
+        sendBtn.textContent = `${countdown}秒后重试`;
+
+        if (countdown <= 0) {
+          clearInterval(timer);
+          countdown = 60;
+          sendBtn.disabled = false;
+          sendBtn.classList.remove('opacity-50');
+          sendBtn.textContent = '获取验证码';
+        }
+      }, 1000);
+
+      // Simulate sending code
+      alert('验证码已发送至您的手机');
+    }
+
+    // Handle Phone Login
+    function handlePhoneLogin(event) {
+      event.preventDefault();
+      const phone = document.getElementById('phone').value;
+      const code = document.getElementById('phoneCode').value;
+
+      if (!validatePhone(phone)) {
+        document.getElementById('phoneError').classList.remove('hidden');
+        return false;
+      }
+
+      if (code.length !== 6) {
+        alert('请输入6位验证码');
+        return false;
+      }
+
+      // Show success modal
+      document.getElementById('successModal').classList.remove('hidden');
+
+      // Redirect after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 1500);
+
+      return false;
+    }
+
+    // Handle Email Login
+    function handleEmailLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      if (!validateEmail(email)) {
+        document.getElementById('emailError').classList.remove('hidden');
+        return false;
+      }
+
+      if (password.length < 6) {
+        alert('密码至少6位');
+        return false;
+      }
+
+      // Show success modal
+      document.getElementById('successModal').classList.remove('hidden');
+
+      // Redirect after 1.5 seconds
+      setTimeout(() => {
+        window.location.href = 'profile.html';
+      }, 1500);
+
+      return false;
+    }
+  </script>
+
+<style>
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.inland-security-footer {
+  position: fixed;
+  z-index: 10;
+  bottom: 0;
+  right: 0;
+  width: fit-content;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tooltip-container {
+  position: relative;
+}
+
+.trigger-content {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.minimax-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 300;
+  color: #adadad;
+  text-decoration: none;
+}
+
+.minimax-link:visited {
+  color: #adadad;
+}
+
+.minimax-link:hover {
+  color: #666666;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: 16px; /* 8px 内容间距 + 8px 用于鼠标移动的透明区域 */
+  font-size: 12px;
+  line-height: 17px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #171717;
+}
+
+/* 创建透明的连接区域，让鼠标可以平滑移动到 tooltip */
+.tooltip-content::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  right: 0;
+  height: 16px;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: flex;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.beian-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #171717;
+}
+
+.beian-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 2px;
+}
+
+.underline-text {
+  color: #171717;
+  text-decoration: underline;
+}
+
+.underline-text:hover {
+  color: #000000;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .trigger-content {
+    background-color: transparent;
+  }
+
+  .minimax-link,
+  .minimax-link:visited {
+    color: #666666;
+  }
+
+  .minimax-link:hover {
+    color: #adadad;
+  }
+
+  .tooltip-content {
+    background-color: #262626;
+    color: #ededed;
+  }
+
+  .beian-link,
+  .underline-text {
+    color: #ededed;
+  }
+
+  .underline-text:hover {
+    color: #ffffff;
+  }
+}
+
+</style>
+<div class="inland-security-footer">
+  <div class="tooltip-container">
+    <div class="trigger-content">
+      <a href="https://www.minimaxi.com/" target="_blank" rel="noreferrer" class="minimax-link">
+        <span>© 2026 MiniMax</span>
+      </a>
+    </div>
+    <div class="tooltip-content">
+      <section class="info-section">
+        <span>上海稀宇科技有限公司</span>
+      </section>
+
+      <section class="info-section">
+        <a class="beian-link" href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=31010402010179" target="_blank" rel="noreferrer">
+          <img alt="hailuo-beian-icon" src="https://cdn.hailuoai.com/hailuo-video-web/public_assets/223037d3-79fd-4db0-a456-749f38a6a14b.png" class="beian-icon">
+          <span class="underline-text">沪公网安备31010402010179号</span>
+        </a>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer" class="underline-text">
+          沪ICP备2023003282号-38
+        </a>
+      </section>
+
+      <section class="info-section">
+        <span>模型名称：MiniMax</span>
+        <span>备案号：Shanghai-MiniMax-202505230046</span>
+      </section>
+
+      <section class="info-section">
+        <a href="https://agent.minimaxi.com/doc/zh/terms-of-service.html" target="_blank" rel="noreferrer" class="underline-text">
+          用户协议
+        </a>
+        <a href="https://agent.minimaxi.com/doc/zh/privacy-policy.html" target="_blank" rel="noreferrer" class="underline-text">
+          隐私政策
+        </a>
+      </section>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
