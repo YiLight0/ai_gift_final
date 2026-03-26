@@ -1,6 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { listCatalog } from "./asset-catalog.js";
+import { getDefaultCategoryId, listCatalog } from "./asset-catalog.js";
 import { buildPrompt } from "./prompt.js";
 import { generateDesign } from "./generate.js";
 import { renderMockup } from "./render.js";
@@ -86,7 +86,10 @@ async function handleApi(req, res, pathname) {
 
   if (req.method === "POST" && pathname === "/api/prompt") {
     const body = await getBody(req);
-    const result = await buildPrompt(body.user_text ?? "", body.category_name ?? "META保温杯");
+    const result = await buildPrompt(
+      body.user_text ?? "",
+      body.category_name ?? getDefaultCategoryId(),
+    );
     sendJson(res, 200, result);
     return true;
   }
@@ -94,7 +97,7 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/generate-design") {
     const body = await getBody(req);
     const result = await generateDesign({
-      categoryName: body.category_name ?? "META保温杯",
+      categoryName: body.category_name ?? getDefaultCategoryId(),
       prompt: body.prompt ?? "",
       negativePrompt: body.negative_prompt ?? "",
     });
@@ -116,12 +119,16 @@ async function handleApi(req, res, pathname) {
     const body = await getBody(req);
     const result = await renderMockup({
       rootDir: projectRoot,
-      categoryName: body.category_name ?? "META保温杯",
+      categoryName: body.category_name ?? getDefaultCategoryId(),
       styleFilename: body.style_filename ?? "",
       designParts: body.design_parts ?? [],
     });
     const fileUrl = await finalizeImageResult("mockup", result);
-    sendJson(res, 200, { mockup_image_url: fileUrl, mode: result.mode, assets: result.assets });
+    sendJson(res, 200, {
+      mockup_image_url: fileUrl,
+      mode: result.mode,
+      assets: result.assets,
+    });
     return true;
   }
 
