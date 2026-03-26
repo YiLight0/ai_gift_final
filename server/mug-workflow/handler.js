@@ -7,7 +7,7 @@ import { renderMockup } from "./render.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, "..", "..");
+const projectRoot = process.cwd() || path.resolve(__dirname, "..", "..");
 
 function getPathname(url) {
   return new URL(url || "/", "http://127.0.0.1").pathname;
@@ -80,7 +80,7 @@ async function finalizeDesignParts(designParts = []) {
 
 async function handleApi(req, res, pathname) {
   if (req.method === "GET" && pathname === "/api/catalog") {
-    sendJson(res, 200, { categories: listCatalog(projectRoot) });
+    sendJson(res, 200, { categories: listCatalog() });
     return true;
   }
 
